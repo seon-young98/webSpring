@@ -23,7 +23,7 @@
 			</c:if>
 			<c:if test="${logStatus=='Y' }"> <!-- 로그인 상태일 때 -->
 				<li>${logName }<a href="/campus/logout">로그아웃</a></li>
-				<li>회원정보수정</li>
+				<li><a href="/campus/joinEdit">회원정보수정</a></li>
 			</c:if>
 				<li>게시판</li>
 				<li>자료실</li>

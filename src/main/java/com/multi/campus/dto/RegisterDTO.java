@@ -118,7 +118,7 @@ public class RegisterDTO {
 		//[독서, 음악감상]
 		String hobbyStr = Arrays.toString(hobbyArr);
 		hobbyStr = hobbyStr.substring(1, hobbyStr.length()-1); //독서, 음악감상
-		hobbyStr = hobbyStr.replaceAll(",","/"); //독서/음악감상
+		hobbyStr = hobbyStr.replaceAll(", ","/"); //독서/음악감상
 		hobby = hobbyStr;
 		
 		return hobby;

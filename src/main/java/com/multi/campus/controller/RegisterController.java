@@ -1,16 +1,21 @@
 package com.multi.campus.controller;
 
+import java.util.List;
+
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpSession;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
+import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.servlet.ModelAndView;
 
 import com.multi.campus.dto.RegisterDTO;
+import com.multi.campus.dto.ZipcodeDTO;
 import com.multi.campus.service.RegisterService;
 
 @Controller
@@ -63,5 +68,83 @@ public class RegisterController {
 		return "register/join";
 	}
 	
+	//아이디중복검사
+	@GetMapping("/idCheck")
+	public String idCheck(String userid, Model model) {
+		//DB조회
+		//아이디 개수 구하기: 0, 1
+		int result = service.idCheckCount(userid);
+		
+		//뷰에서 사용하기 위해 모델에 세팅
+		model.addAttribute("userid", userid);
+		model.addAttribute("result", result);
+		
+		return "register/idCheck";	
+	}
+	
+	//우편번호 검색
+	@RequestMapping(value="/zipcodeSearch", method=RequestMethod.GET)
+	public ModelAndView zipcodeSearch(String doroname) {
+		ModelAndView mav = new ModelAndView();
+		
+		//선택한 주소가 없으면 null을 리턴
+		List<ZipcodeDTO> zipList = null;
+		
+		if(doroname!=null) {
+			zipList = service.zipSearch(doroname);
+		}
+		
+		mav.addObject("zipList", zipList);
+		mav.setViewName("register/zipcodeSearch");
+		
+		return mav;
+	}
+	
+	//회원가입 성공
+	@RequestMapping(value="/joinOk", method=RequestMethod.POST)
+	public ModelAndView joinOk(RegisterDTO dto) {
+		System.out.println(dto.toString());
+		
+		ModelAndView mav = new ModelAndView();
+		//회원가입
+		int result = service.registerInsert(dto);
+		
+		if(result>0) {//회원가입 성공 시 -> 로그인폼으로 이동
+			mav.setViewName("redirect:loginForm");
+		}else{//회원가입 실패 시
+			mav.addObject("msg","회원가입 실패했습니다.");
+			mav.setViewName("register/joinOkResult");
+		}
+		return mav;
+	}
+	
+	//회원정보 수정폼 - session 로그인 아이디에 해당하는 회원정보를 select하여 뷰페이지로 이동
+	@GetMapping("/joinEdit")
+	public ModelAndView joinEdit(HttpSession session) {
+		RegisterDTO dto = service.registerEdit((String)session.getAttribute("logId"));
+		
+		ModelAndView mav = new ModelAndView();
+		mav.addObject("dto", dto);
+		mav.setViewName("register/joinEdit");
+		
+		return mav;
+	}
+	
+	//회원정보 수정(DB) - form의 내용과 session의 로그인 아이디로 회원정보를 수정한다.
+	@PostMapping("/joinEditOk")
+	public ModelAndView joinEditOk(RegisterDTO dto, HttpSession session) {
+		dto.setUserid((String)session.getAttribute("logId"));
+		
+		int cnt = service.registerEditOk(dto);
+		
+		ModelAndView mav = new ModelAndView();
+		if(cnt>0){//수정성공 -> db에서 수정된 내용을 보여주고
+			mav.setViewName("redirect:joinEdit");
+		}else{//수정실패 -> 이전페이지(알림)
+			mav.addObject("msg","회원정보수정 실패했습니다.");
+			mav.setViewName("register/joinOkResult");
+		}
+		return mav;
+	}
 	
 }

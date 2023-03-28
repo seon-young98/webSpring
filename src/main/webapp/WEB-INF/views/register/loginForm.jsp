@@ -18,7 +18,7 @@
 		</ul>
 	</form>
 	<div style="background:gray; margin:50px; padding:50px; text-align:center;">
-		회원가입
+		<a href="join">회원가입</a>
 		아이디찾기
 		비밀번호찾기
 	</div>
