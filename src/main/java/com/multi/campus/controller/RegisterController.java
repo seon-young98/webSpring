@@ -2,16 +2,20 @@ package com.multi.campus.controller;
 
 import java.util.List;
 
+import javax.mail.internet.MimeMessage;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpSession;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.mail.javamail.JavaMailSenderImpl;
+import org.springframework.mail.javamail.MimeMessageHelper;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
+import org.springframework.web.bind.annotation.ResponseBody;
 import org.springframework.web.servlet.ModelAndView;
 
 import com.multi.campus.dto.RegisterDTO;
@@ -22,6 +26,9 @@ import com.multi.campus.service.RegisterService;
 public class RegisterController {
 	@Autowired
 	RegisterService service;
+	
+	@Autowired
+	JavaMailSenderImpl mailSender;
 	
 	@GetMapping("/loginForm")
 	public String login() {
@@ -146,5 +153,51 @@ public class RegisterController {
 		}
 		return mav;
 	}
+	
+	//이메일
+	@GetMapping("/idSearchForm")
+	public String idSearchForm() {
+		return "register/idSearchForm";
+	}
+	
+	@PostMapping("/idSearchEmailSend")
+	@ResponseBody
+	public String idSearchEmailSend(RegisterDTO dto) {
+		
+		//이름과 이메일이 일치하는 회원과 아이디
+		String userid = service.idSearch(dto.getUsername(), dto.getEmail());
+		
+		if(userid==null || userid.equals("")){//아이디 없으면 존재하지 않는 정보
+			return "N";
+		}else {//아이디가 있으면
+			//DB조회한 아이디를 이메일로 보내고 메일 보냈다는 정보를 알려준다.
+			String emailSubject = "아이디 찾기 결과";
+			String emailContent = "<div style='background:pink; margin:50px; padding:50px; ";
+			emailContent += "border:2px solid gray; font-size:2em; text-align:center';>";
+			emailContent += "검색한 아이디는";
+			emailContent += userid + "입니다.";
+			emailContent += "</div>";
+			
+			try {
+				//mimeMessage -> mimeMessageHelper
+				MimeMessage message = mailSender.createMimeMessage();
+				MimeMessageHelper messageHelper = new MimeMessageHelper(message, true, "UTF-8");
+				
+				//보내는 메일 주소
+				messageHelper.setFrom("ehrehrtjsdud@naver.com");
+				messageHelper.setTo(dto.getEmail());
+				messageHelper.setSubject(emailSubject);
+				messageHelper.setText("text/html; charset=UTF-8",emailContent);
+				
+				mailSender.send(message); //보내기
+				return "Y";
+			}catch(Exception e) {
+				e.printStackTrace();
+				return "N";
+			}
+		}
+			
+	}
+	
 	
 }

@@ -18,4 +18,6 @@ public interface RegisterDAO {
 	public RegisterDTO registerEdit(String userid);
 	//회원정보 수정 DB 업데이트
 	public int registerEditOk(RegisterDTO dto);
+	//이름과 이메일로 아이디 검색
+	public String idSearch(String username, String email);
 }
