@@ -25,7 +25,7 @@
 				<li>${logName }<a href="/campus/logout">로그아웃</a></li>
 				<li><a href="/campus/joinEdit">회원정보수정</a></li>
 			</c:if>
-				<li>게시판</li>
+				<li><a href="/campus/board/boardList">게시판</a></li>
 				<li>자료실</li>
 				<li>계층형게시판</li>
 		</ul>
