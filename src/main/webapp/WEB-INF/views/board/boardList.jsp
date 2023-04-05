@@ -1,5 +1,85 @@
 <%@ page language="java" contentType="text/html; charset=UTF-8" pageEncoding="UTF-8"%>
 <%@ taglib uri="http://java.sun.com/jsp/jstl/core" prefix="c" %>
+<style>
+	.board_header{
+		padding:30px;
+		background-color:#ddd;
+	}
+	.pHeader>div{
+		width:50%;
+		float:left;
+		padding:10px 0;
+		background-color:#888;
+		color:white;
+	}
+	.pHeader>div:last-child{
+		text-align:right;
+	}
+	.board_list li{
+		float:left;
+		width:10%;
+		height:40px;
+		line-height:40px;
+		border-bottom:1px solid #ddd;
+	}
+	.board_list li:nth-child(6n+3){
+		width:50%;
+		/*밑줄임 표시하기*/
+		white-space:nowrap; /*줄바꾸지 않음*/
+		overflow:hidden; /*넘치는 문자 숨기기*/
+		text-overflow:ellipsis;/*넘치는 데이터가 있을 때 밑줄임 표시하기*/
+	}
+	.pagingDiv li{
+		float:left;
+		padding:10px 20px;
+	}
+	.pagingDiv a:link, .pagingDiv a:hover, .pagingDiv a:visited, 
+	.board_list a:link, .board_list a:hover, .board_list a:visited{
+		color:#000;
+	}
+	.searchDiv{
+		clear:left;
+		padding:10px;
+		text-align:center;
+	}
+</style>
+<script>
+	$(function(){
+		$("#searchForm").submit(function(){
+			if($("#searchWord").val()==""){
+				alert("검색어를 입력하세요.");
+				return false;
+			}
+			return true
+		});
+		
+		//전체 선택을 클릭하면 체크박스 상태에 따라 선택 또는 해체 하는 기능 구현
+		$("#allCheck").click(function(){
+			$(".board_list inputp[name=noList]").prop("checked", $("#allCheck").prop("checked"))
+		});
+		
+		//선택삭제 버튼을 클릭하면
+		$("#chooseDel").click(function(){
+			//최소 1개 이상 삭제를 선택했을 때
+			var checkCount = 0;
+			
+			$(".board_list input[name=noList]").each(function(idx, obj){
+				if(obj.checked){ //$(obj).prop('checked')
+					checkCount++;
+				}
+			});
+			
+			if(checkCount>0){
+				if(confirm(checkCount+"개의 게시글을 삭제하시겠습니까?")){
+					$("#delList").submit();
+				}
+			}else{
+				alert("삭제할 게시글이 없습니다.");
+			}
+		});
+	});
+</script>
+
 <div class="container">
 	<h1>게시판 목록</h1>
 	<!--                              "/campus/board/boardWrite" -->
@@ -85,4 +165,18 @@
 			</c:if>
 		</ul>
 	</div>
+	
+	<!-- 검색 -->
+	<div class="searchDiv">
+		<form method="get" id="searchForm" action="boardList">
+			<select name="searchKey">
+				<option value="subject">제목</option>
+				<option value="username">작성자</option>
+				<option value="content">글내용</option>
+			</select>
+			<input type="text" name="searchWord" id="searchWord"/>
+			<input type="submit" value="Search"/>
+		</form>
+	</div>
+	
 </div>
